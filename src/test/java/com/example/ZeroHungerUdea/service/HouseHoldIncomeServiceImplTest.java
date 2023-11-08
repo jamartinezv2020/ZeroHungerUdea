@@ -1,10 +1,10 @@
 package com.example.ZeroHungerUdea.service;
 
-import org.example.HouseHoldIncomeServiceImpl;
-import org.example.repository.HouseHoldIncomeInMemoryRepositoryImpl;
+import com.example.ZeroHungerUdea.HouseHoldIncomeServiceImpl;
+import com.example.ZeroHungerUdea.repository.HouseHoldIncomeInMemoryRepositoryImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import com.example.ZeroHungerUdea.model.HouseHoldIncome;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class HouseHoldIncomeServiceImplTest {
@@ -17,7 +17,12 @@ class HouseHoldIncomeServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    this.houseHoldIncomeService = new HouseHoldIncomeServiceImpl(new HouseHoldIncomeInMemoryRepositoryImpl());
+    this.houseHoldIncomeService = new HouseHoldIncomeServiceImpl(new HouseHoldIncomeInMemoryRepositoryImpl () {
+      @Override
+      public HouseHoldIncome createHouseHoldIncomeFromPlainText (String plainTextHouseHoldIncome) {
+        return null;
+      }
+    });
   }
 
   @Test

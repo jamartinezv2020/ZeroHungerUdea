@@ -5,9 +5,14 @@ import com.example.ZeroHungerUdea.repository.HouseHoldIncomeFileRepositoryImpl;
 import com.example.ZeroHungerUdea.repository.HouseHoldIncomeRepository;
 import com.example.ZeroHungerUdea.service.ChartGenerator;
 import com.example.ZeroHungerUdea.service.PDFReportGenerator;
+import com.example.ZeroHungerUdea.service.ReportSaver;
+import org.apache.pdfbox.pdmodel.PDDocument;
+
 
 import java.io.IOException;
 import java.util.List;
+
+import static com.example.ZeroHungerUdea.service.HouseHoldIncomeStatistics.*;
 
 public class ApplicationRunner {
 
@@ -20,6 +25,8 @@ public class ApplicationRunner {
 
             printStatistics(incomeList);
             exportStatisticsToPDF(incomeList);
+
+            ReportSaver reportSaver = new ReportSaver (incomeList);
 
         } catch (IOException e) {
             handleIOException(e);
@@ -54,7 +61,9 @@ public class ApplicationRunner {
     private static void exportStatisticsToPDF(List<HouseHoldIncome> incomeList) {
         PDFReportGenerator.generatePDFReport(incomeList);
     }
-
+    private static void exportReportSaverToPDF(List<HouseHoldIncome> incomeList){
+        ReportSaver.savePDFReport ();
+    }
     private static void handleIOException(IOException e) {
         // Handle the IOException, e.g., log it or display an error message
         e.printStackTrace();

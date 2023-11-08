@@ -314,40 +314,7 @@ public class HouseHoldIncomeStatistics {
     }
 
 
-    public static class ReportSaver {
 
-        private static final Logger logger = LoggerFactory.getLogger (ReportSaver.class);
-        private static final String REPORTS_DIRECTORY = "reports"; // Nombre del directorio para almacenar los informes
-
-        public ReportSaver (List<HouseHoldIncome> incomeList) {
-        }
-
-        public static void savePDFReport (PDDocument document) {
-            logger.info ("Guardando el documento PDF");
-
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyyMMdd_HHmmss");
-                String timestamp = dateFormat.format (new Date ());
-                String fileName = "palmira_" + timestamp + ".pdf";
-
-                // Verificar si el directorio "reports" existe, si no, crearlo
-                File reportsDirectory = new File (REPORTS_DIRECTORY);
-                if (!reportsDirectory.exists ()) {
-                    reportsDirectory.mkdir ();
-                }
-
-                // Ruta completa del archivo PDF en el directorio "reports"
-                String filePath = REPORTS_DIRECTORY + File.separator + fileName;
-
-                document.save (filePath);
-                document.close ();
-                logger.info ("Documento PDF guardado en: " + filePath);
-            } catch (IOException e) {
-                e.printStackTrace ();
-                logger.error ("Error al guardar el documento PDF");
-            }
-        }
-    }
 
 
     public static void centralTendencyMeasures () throws IOException {

@@ -1,41 +1,35 @@
 package com.example.ZeroHungerUdea.service;
 
+import com.example.ZeroHungerUdea.model.HouseHoldIncome;
+import com.example.ZeroHungerUdea.repository.HouseHoldIncomeFileRepositoryImpl;
+import com.example.ZeroHungerUdea.repository.HouseHoldIncomeUsingFileRepositoryImpl;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import com.example.ZeroHungerUdea.model.HouseHoldIncome;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeInMemoryRepositoryImpl;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeRepository;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeUsingFileRepositoryImpl;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeFileRepositoryImpl;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtils;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 public class HouseHoldIncomeStatistics {
 
     public static final Logger logger = LoggerFactory.getLogger(HouseHoldIncomeUsingFileRepositoryImpl.class);
 
-   /* public static double formatDouble (double value) {
-        return Double.parseDouble (String.format ("%.3f", value));
-    }
-
-*/
+    // ...
     public static double calculateAverageSalary (List<HouseHoldIncome> incomeList) {
         logger.info("Calculando el salario promedio");
         return incomeList.stream ()
@@ -209,37 +203,152 @@ public class HouseHoldIncomeStatistics {
     }
 
 
-    public static void savePDFReport (PDDocument document) {
+
+    public static void exportStatisticsToPDF(List<HouseHoldIncome> incomeList) {
+        // Obtén la fecha actual para incluirla en el nombre del archivo
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String currentDate = sdf.format(new Date());
+
+        // Nombre del archivo PDF con la fecha actual
+        String fileName = "ReporteEstadistico_" + currentDate + ".pdf";
+
+        Document document = new Document();
         try {
-            document.save ("informe.pdf");
-            document.close ();
+            PdfWriter.getInstance(document, new FileOutputStream(fileName));
+            document.open();
+
+            logger.info("Mostrando los datos estadísticos");
+
+            // Agrega los resultados al informe
+            addResultToPDF(document, "Sum Number of Families: " + sumNumberOfFamilies(incomeList));
+            addResultToPDF(document, "S A L A R I E S:");
+            addResultToPDF(document, "Average Salary: " + calculateAverageSalary(incomeList));
+            addResultToPDF(document, "Median Salary: " + calculateMedianSalary(incomeList));
+            addResultToPDF(document, "Mode Salary: " + calculateModeSalary(incomeList));
+            addResultToPDF(document, "Minimum Salary: " + calculateMinimumSalary(incomeList));
+            addResultToPDF(document, "Maximum Salary: " + calculateMaximumSalary(incomeList));
+            addResultToPDF(document, "M E M B E R S:");
+            addResultToPDF(document, "Average Members: " + calculateAverageMembers(incomeList));
+            addResultToPDF(document, "Median Members: " + calculateMedianMembers(incomeList));
+            addResultToPDF(document, "Mode Members: " + calculateModeMembers(incomeList));
+            addResultToPDF(document, "B E D R O O M S:");
+            addResultToPDF(document, "Average Bedrooms: " + calculateAverageBedrooms(incomeList));
+            addResultToPDF(document, "Median Bedrooms: " + calculateMedianBedrooms(incomeList));
+            addResultToPDF(document, "Mode Bedrooms: " + calculateModeBedrooms(incomeList));
+            addResultToPDF(document, "M E A L S:");
+            addResultToPDF(document, "Average Meals: " + calculateAverageMeals(incomeList));
+            addResultToPDF(document, "Median Meals: " + calculateMedianMeals(incomeList));
+            addResultToPDF(document, "Mode Meals: " + calculateModeMeals(incomeList));
+
+            document.close();
+            logger.info("Informe exportado como " + fileName);
+        } catch (DocumentException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void addResultToPDF(Document document, String text) throws DocumentException {
+        document.add(new Paragraph(text));
+    }
+
+    public static void generatePDFReport(List<HouseHoldIncome> incomeList) {
+        logger.info("Generando informe en PDF");
+
+        try {
+            PDDocument document = new PDDocument();
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            contentStream.setFont (new PDType1Font (Standard14Fonts.FontName.HELVETICA), 16);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(100, 700);
+            contentStream.showText("Informe de Estadísticas de Ingresos");
+            contentStream.endText();
+            contentStream.setFont (new PDType1Font (Standard14Fonts.FontName.HELVETICA), 16);
+            float yPosition = 650;
+            float lineSpacing = 20;
+
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Suma del número de familias: " + sumNumberOfFamilies(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("SALARIOS:");
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Promedio de salario: " + calculateAverageSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Mediana de salario: " + calculateMedianSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Moda de salario: " + calculateModeSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Salario mínimo: " + calculateMinimumSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            // Repite el mismo patrón para MEMBROS, DORMITORIOS y COMIDAS aquí.
+
+            contentStream.close();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = dateFormat.format(new Date());
+            String fileName = "ReportesEstadisticos_" + timestamp + ".pdf";
+
+            // Guarda el informe en el directorio "reports" (asegúrate de que el directorio exista)
+            String filePath = "reports/" + fileName;
+
+            document.save(filePath);
+            document.close();
+
+            logger.info("Informe en PDF generado exitosamente: " + fileName);
         } catch (IOException e) {
-            e.printStackTrace ();
+            logger.error("Error generando el informe en PDF: " + e.getMessage());
         }
     }
 
 
-    public static void generateStatisticsCharts (List<HouseHoldIncome> incomeList) {
-        logger.info("Generando las gráficas estadísticas");
-        try {
-            OutputStream chartImageStream = new FileOutputStream ("chart.png");
-            JFreeChart chart = null;
-            ChartUtils.saveChartAsPNG (new File ("chart.png"), chart, 600, 400);
-            System.out.println ("Statistics charts generated successfully.");
-            // Resto del código para generar las gráficas
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset ();
-            dataset.addValue (calculateAverageSalary (incomeList), "Statistics", "Average Salary");
-            dataset.addValue (calculateMedianSalary (incomeList), "Statistics", "Median Salary");
-            dataset.addValue (calculateModeSalary (incomeList), "Statistics", "Mode Salary");
+    public static class ReportSaver {
 
-            chart = ChartFactory.createBarChart (
-                    "Income Statistics", "Statistic", "Value", dataset, PlotOrientation.VERTICAL, true, true, false
-            );
-        } catch (IOException e) {
-            logger.error("Error al analizar los datos de ingresos del hogar: " + e.getMessage ());
-            System.err.println ("Error generating statistics charts: " + e.getMessage ());
+        private static final Logger logger = LoggerFactory.getLogger (ReportSaver.class);
+        private static final String REPORTS_DIRECTORY = "reports"; // Nombre del directorio para almacenar los informes
+
+        public ReportSaver (List<HouseHoldIncome> incomeList) {
+        }
+
+        public static void savePDFReport (PDDocument document) {
+            logger.info ("Guardando el documento PDF");
+
+            try {
+                SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyyMMdd_HHmmss");
+                String timestamp = dateFormat.format (new Date ());
+                String fileName = "palmira_" + timestamp + ".pdf";
+
+                // Verificar si el directorio "reports" existe, si no, crearlo
+                File reportsDirectory = new File (REPORTS_DIRECTORY);
+                if (!reportsDirectory.exists ()) {
+                    reportsDirectory.mkdir ();
+                }
+
+                // Ruta completa del archivo PDF en el directorio "reports"
+                String filePath = REPORTS_DIRECTORY + File.separator + fileName;
+
+                document.save (filePath);
+                document.close ();
+                logger.info ("Documento PDF guardado en: " + filePath);
+            } catch (IOException e) {
+                e.printStackTrace ();
+                logger.error ("Error al guardar el documento PDF");
+            }
         }
     }
+
 
     public static void centralTendencyMeasures () throws IOException {
         logger.info("Generando las gráficas estadísticas");
@@ -247,21 +356,42 @@ public class HouseHoldIncomeStatistics {
         //HouseHoldIncomeUsingFileRepositoryImpl repository = new HouseHoldIncomeUsingFileRepositoryImpl();
         List<HouseHoldIncome> incomeList = repository.findAllHouseHoldIncome ();
         // Generar el informe en PDF
-        generatePDFReport (incomeList);
-        generateReportPDF (incomeList);
-
+        //generatePDFReport (incomeList);
+        HouseHoldIncomeStatistics.generatePDFReport (incomeList);
+        generatePDFReportStatistic(incomeList);
         // Generar gráficos estadísticos
-        generateStatisticsCharts (incomeList);
+        //generateStatisticsCharts (incomeList);
         // Central Tendency Measures
         statistics (incomeList);
         logger.info("Ya tenemos las medidas de tendencia central");
     }
+//inicio
 
-
-    private static void generatePDFReport (List<HouseHoldIncome> incomeList) {
-        logger.info("Generando los reportes en PDF");
+    public static void printStatistics(List<HouseHoldIncome> incomeList) {
+        logger.info("Mostrando los datos estadísticos");
+        System.out.println("Sum Number of Families: " + sumNumberOfFamilies(incomeList));
+        System.out.println("S A L A R I E S:");
+        System.out.println("Average Salary: " + calculateAverageSalary(incomeList));
+        System.out.println("Median Salary: " + calculateMedianSalary(incomeList));
+        System.out.println("Mode Salary: " + calculateModeSalary(incomeList));
+        System.out.println("Minimum Salary: " + calculateMinimumSalary(incomeList));
+        System.out.println("Maximum Salary: " + calculateMaximumSalary(incomeList));
+        System.out.println("M E M B E R S:");
+        System.out.println("Average Members: " + calculateAverageMembers(incomeList));
+        System.out.println("Median Members: " + calculateMedianMembers(incomeList));
+        System.out.println("Mode Members: " + calculateModeMembers(incomeList));
+        System.out.println("B E D R O O M S:");
+        System.out.println("Average Bedrooms: " + calculateAverageBedrooms(incomeList));
+        System.out.println("Median Bedrooms: " + calculateMedianBedrooms(incomeList));
+        System.out.println("Mode Bedrooms: " + calculateModeBedrooms(incomeList));
+        System.out.println("M E A L S:");
+        System.out.println("Average Meals: " + calculateAverageMeals(incomeList));
+        System.out.println("Median Meals: " + calculateMedianMeals(incomeList));
+        System.out.println("Mode Meals: " + calculateModeMeals(incomeList));
     }
 
+
+    //final
     public static void statistics (List<HouseHoldIncome> incomeList) {
         logger.info("Mostrando los datos estadísticos");
         System.out.println ("Sum Number of Families: " + sumNumberOfFamilies (incomeList));
@@ -285,66 +415,64 @@ public class HouseHoldIncomeStatistics {
         System.out.println ("Mode Meals: " + calculateModeMeals (incomeList));
 
     }
+    public static void generatePDFReportStatistic(List<HouseHoldIncome> incomeList) {
+        logger.info("Generando informe en PDF");
 
-    public static void generateReportPDF (List<HouseHoldIncome> incomeList) {
         try {
-            System.out.println ("Income statistics PDF report generated successfully.");
-            HouseHoldIncomeUsingFileRepositoryImpl repository = new HouseHoldIncomeFileRepositoryImpl ();
-            //HouseHoldIncomeUsingFileRepositoryImpl repository = new HouseHoldIncomeUsingFileRepositoryImpl();
-            incomeList = repository.findAllHouseHoldIncome ();
-            PDDocument document = new PDDocument ();
-            PDPage page = new PDPage (PDRectangle.A4);
-            document.addPage (page);
-            PDPageContentStream contentStream = new PDPageContentStream (document, page);
-
-            // Generate statistics
-            double averageSalary = calculateAverageSalary (incomeList);
-            double medianSalary = calculateMedianSalary (incomeList);
-            double modeSalary = calculateModeSalary (incomeList);
-            double minimumSalary = calculateMinimumSalary (incomeList);
-            double maximumSalary = calculateMaximumSalary (incomeList);
-
-            // Create a dataset for a bar chart (example)
-            DefaultCategoryDataset dataset = new DefaultCategoryDataset ();
-            dataset.addValue (averageSalary, "Statistics", "Average Salary");
-            dataset.addValue (medianSalary, "Statistics", "Median Salary");
-            dataset.addValue (modeSalary, "Statistics", "Mode Salary");
-
-            JFreeChart chart = ChartFactory.createBarChart (
-                    "Income Statistics", "Statistic", "Value", dataset, PlotOrientation.VERTICAL, true, true, false
-            );
-
-            // Generate the chart image
-            OutputStream chartImageStream = new FileOutputStream ("chart.png");
-            ChartUtils ChartUtilities = null;
-            ChartUtilities.writeChartAsPNG (chartImageStream, chart, 600, 400);
-
-            // Add statistics and chart to the PDF
-            contentStream.beginText ();
+            PDDocument document = new PDDocument();
+            PDPage page = new PDPage();
+            document.addPage(page);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
             contentStream.setFont (new PDType1Font (Standard14Fonts.FontName.HELVETICA), 16);
-            contentStream.newLineAtOffset (100, 700);
-            contentStream.showText ("Income Statistics Report");
-            contentStream.newLineAtOffset (0, -20);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(100, 700);
+            contentStream.showText("Informe de Estadísticas de Ingresos");
+            contentStream.endText();
             contentStream.setFont (new PDType1Font (Standard14Fonts.FontName.HELVETICA), 12);
-            contentStream.showText ("Average Salary: " + averageSalary);
-            contentStream.newLineAtOffset (0, -20);
-            contentStream.showText ("Median Salary: " + medianSalary);
-            contentStream.newLineAtOffset (0, -20);
-            contentStream.showText ("Mode Salary: " + modeSalary);
-            contentStream.endText ();
+            float yPosition = 650;  // Posición inicial para el contenido
+            float lineSpacing = 20;  // Espaciado entre líneas
 
-            // Insert the chart image into the PDF
-            PDImageXObject chartImage = PDImageXObject.createFromFile ("chart.png", document);
-            contentStream.drawImage (chartImage, 100, 400);
+            contentStream.newLineAtOffset(50, yPosition);
+            contentStream.showText("Suma del número de familias: " + sumNumberOfFamilies(incomeList));
+            yPosition -= lineSpacing;
 
-            contentStream.close ();
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("SALARIOS:");
+            yPosition -= lineSpacing;
 
-            /* Save the PDF to a file */
-            document.save ("IncomeStatisticsReport.pdf");
-            document.close ();
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Promedio de salario: " + calculateAverageSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Mediana de salario: " + calculateMedianSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Moda de salario: " + calculateModeSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            contentStream.newLineAtOffset(0, -lineSpacing);
+            contentStream.showText("Salario mínimo: " + calculateMinimumSalary(incomeList));
+            yPosition -= lineSpacing;
+
+            // Repite el mismo patrón para MEMBROS, DORMITORIOS y COMIDAS aquí.
+
+            contentStream.close();
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = dateFormat.format(new Date());
+            String fileName ="reporte_" + timestamp + ".pdf";
+
+            document.save(fileName);
+            document.close();
+
+            System.out.println("Informe en PDF generado exitosamente: " + fileName);
         } catch (IOException e) {
-            System.err.println ("Error generating the PDF report: " + e.getMessage ());
+            System.err.println("Error generando el informe en PDF: " + e.getMessage());
         }
     }
+
+
 }
 

@@ -1,9 +1,6 @@
 package com.example.ZeroHungerUdea.service;
 
 import com.example.ZeroHungerUdea.model.HouseHoldIncome;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeFileRepositoryImpl;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeRepository;
-import com.example.ZeroHungerUdea.repository.HouseHoldIncomeUsingFileRepositoryImpl;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
@@ -17,35 +14,18 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 import static com.example.ZeroHungerUdea.service.HouseHoldIncomeStatistics.*;
 
 public class PDFReportGenerator {
-    HouseHoldIncomeRepository incomeRepository = new HouseHoldIncomeFileRepositoryImpl ();
-    List<HouseHoldIncome> incomeList = incomeRepository.findAllHouseHoldIncome();
 
-    public static final Logger logger = LoggerFactory.getLogger(HouseHoldIncomeUsingFileRepositoryImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(PDFReportGenerator.class);
 
     public static void generatePDFReport(List<HouseHoldIncome> incomeList) {
-        // Nombre del archivo PDF con un valor único (puedes usar una marca de tiempo o UUID)
-        //String fileName = "Informe_" + System.currentTimeMillis() + ".pdf";
-
-        // Obtén la fecha actual para incluirla en el nombre del archivo
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String currentDate = sdf.format(new Date ());
-
         // Nombre del archivo PDF con la fecha actual
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String currentDate = sdf.format(new Date());
         String fileName = "ReporteEstadisticoPRICA_" + currentDate + ".pdf";
-
-
 
         // Crear un nuevo documento PDF
         Document document = new Document(PageSize.A4, 50, 50, 50, 50);
@@ -64,7 +44,6 @@ public class PDFReportGenerator {
             document.close();
 
             logger.info("Informe PDF generado: " + fileName);
-
         } catch (DocumentException | IOException e) {
             logger.error("Error al generar el informe PDF", e);
         }
@@ -72,14 +51,12 @@ public class PDFReportGenerator {
 
     private static void addReportContent(Document document, List<HouseHoldIncome> incomeList)
             throws DocumentException {
+        // Agregar título al documento
         Paragraph header = new Paragraph("Plataforma de Recursos Institucionales y Consultas Avanzadas (PRICA)");
         document.add(header);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         String currentDateTime = dateFormat.format(new Date());
-
-        //Paragraph dateTime = new Paragraph("Fecha y hora: " + currentDateTime);
-       // document.add(dateTime);
 
         document.add(new Paragraph("JOSE ALFREDO MARTÍNEZ VALDÉS"));
         document.add(new Paragraph("jose.martinez7@udea.edu.co"));
@@ -88,11 +65,8 @@ public class PDFReportGenerator {
         document.add(dateTime);
         document.add(new Paragraph("                                                                         "));
         document.add(new Paragraph("***************************************************************************"));
+
         // Agregar contenido al documento
-
-
-        // Agregar QR code como pie de página (debes implementar esta parte)
-
         document.add(new Paragraph("Mostrando los datos estadísticos"));
         document.add(new Paragraph("Sum Number of Families: " + sumNumberOfFamilies(incomeList)));
         document.add(new Paragraph("S A L A R I E S: "));
@@ -116,4 +90,3 @@ public class PDFReportGenerator {
 
     // Los métodos de cálculo estadístico y otros métodos necesarios deben estar definidos en la misma clase o importados
 }
-

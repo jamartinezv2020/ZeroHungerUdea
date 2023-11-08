@@ -1,4 +1,5 @@
 package com.example.ZeroHungerUdea.repository;
+
 import com.example.ZeroHungerUdea.model.HouseHoldIncome;
 
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 public abstract class HouseHoldIncomeUsingFileRepositoryImpl implements HouseHoldIncomeRepository {
-  public static final Logger logger = LoggerFactory.getLogger(HouseHoldIncomeUsingFileRepositoryImpl.class);
-  public final List<HouseHoldIncome> houseHoldIncomeList;
+  private static final Logger logger = LoggerFactory.getLogger(HouseHoldIncomeUsingFileRepositoryImpl.class);
+  protected final List<HouseHoldIncome> houseHoldIncomeList;
 
   public HouseHoldIncomeUsingFileRepositoryImpl() {
     this.houseHoldIncomeList = new ArrayList<>(loadHouseHoldIncomeFromFile());
   }
 
-  public List<HouseHoldIncome> loadHouseHoldIncomeFromFile() {
+  protected List<HouseHoldIncome> loadHouseHoldIncomeFromFile() {
     logger.info("Loading data from file");
     List<String> plainTextHouseHoldIncomeList = readFileWithHouseHoldIncome();
     return plainTextHouseHoldIncomeList.stream()
@@ -34,7 +35,7 @@ public abstract class HouseHoldIncomeUsingFileRepositoryImpl implements HouseHol
             .toList();
   }
 
-  public List<String> readFileWithHouseHoldIncome() {
+  protected List<String> readFileWithHouseHoldIncome() {
     Path path = Paths.get("./src/main/resources/families.txt");
     if (!Files.exists(path) || !Files.isRegularFile(path)) {
       logger.error("El archivo 'families.txt' no existe o no es un archivo regular.");
@@ -49,7 +50,7 @@ public abstract class HouseHoldIncomeUsingFileRepositoryImpl implements HouseHol
     }
   }
 
-  public HouseHoldIncome createHouseHoldIncomeFromPlainText(String plainTextHouseHoldIncome) {
+  public HouseHoldIncome createHouseHoldIncomeFromPlainText (String plainTextHouseHoldIncome) {
     logger.info("Cargando los datos desde el archivo");
     String[] houseHoldIncomeArray = plainTextHouseHoldIncome.split(",");
     try {
@@ -75,5 +76,4 @@ public abstract class HouseHoldIncomeUsingFileRepositoryImpl implements HouseHol
     }
   }
 }
-
 

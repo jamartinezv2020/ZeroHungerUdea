@@ -1,10 +1,10 @@
 package com.example.ZeroHungerUdea.repository;
-import com.example.ZeroHungerUdea.model.HouseHoldIncome;
 
+        import com.example.ZeroHungerUdea.model.HouseHoldIncome;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
+        import java.util.List;
+        import java.util.Optional;
+        import java.util.function.Predicate;
 
 public class HouseHoldIncomeFileRepositoryImpl extends HouseHoldIncomeUsingFileRepositoryImpl {
 
@@ -14,11 +14,11 @@ public class HouseHoldIncomeFileRepositoryImpl extends HouseHoldIncomeUsingFileR
 
     @Override
     public List<HouseHoldIncome> loadHouseHoldIncome() {
-        // Implementa la carga de datos desde el archivo families.txt
-        // Utiliza la lógica que ya tienes en HouseHoldIncomeUsingFileRepositoryImpl.
-        // Por ejemplo:
+        // Cargar datos desde el archivo families.txt
         List<String> plainTextHouseHoldIncomeList = readFileWithHouseHoldIncome();
-        List<HouseHoldIncome> list = plainTextHouseHoldIncomeList.stream().map(this::createHouseHoldIncomeFromPlainText).toList();
+        List<HouseHoldIncome> list = plainTextHouseHoldIncomeList.stream()
+                .map(this::createHouseHoldIncomeFromPlainText)
+                .toList();
         return list;
     }
 
@@ -28,9 +28,9 @@ public class HouseHoldIncomeFileRepositoryImpl extends HouseHoldIncomeUsingFileR
     }
 
     @Override
-    public Optional<HouseHoldIncome> getHouseHoldIncome(String family) {
-        return this.houseHoldIncomeList.stream()
-                .filter(houseHoldIncome -> houseHoldIncome.nombre().equals(family))
+    public Optional<HouseHoldIncome> getHouseHoldIncome(String familyName) {
+        return houseHoldIncomeList.stream()
+                .filter(houseHoldIncome -> houseHoldIncome.nombre().equals(familyName))
                 .findAny();
     }
 
@@ -40,7 +40,7 @@ public class HouseHoldIncomeFileRepositoryImpl extends HouseHoldIncomeUsingFileR
         return newHouseHoldIncome;
     }
 
-    private Predicate<HouseHoldIncome> isTheHouseHoldIncomeOfTheName(HouseHoldIncome newHouseHoldIncome) {
-        return houseHoldIncome -> houseHoldIncome.nombre().equals(newHouseHoldIncome.nombre());
+    private Predicate<HouseHoldIncome> isTheHouseHoldIncomeOfTheName(String familyName) {
+        return houseHoldIncome -> houseHoldIncome.nombre().equals(familyName);
     }
 }

@@ -1,11 +1,25 @@
 package com.example.ZeroHungerUdea.exception;
 
-import java.text.MessageFormat;
+public class HouseHoldIncomeNotFoundException extends Exception {
 
-//Esta es una checked exception
-public class HouseHoldIncomeNotFoundException extends Exception{
+    public HouseHoldIncomeNotFoundException(String familyName) {
+        super(buildMessage(familyName));
+    }
 
-	public HouseHoldIncomeNotFoundException (String nombreFamilia) {
-		super( MessageFormat.format( "No se encontró el salario para la familia {0}", nombreFamilia ) );
-	}
+    private static String buildMessage(String familyName) {
+        return String.format("No se encontró el salario para la familia %s", familyName);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

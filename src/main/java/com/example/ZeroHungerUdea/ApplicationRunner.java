@@ -9,42 +9,54 @@ import com.example.ZeroHungerUdea.service.PDFReportGenerator;
 import java.io.IOException;
 import java.util.List;
 
-import static com.example.ZeroHungerUdea.service.HouseHoldIncomeStatistics.*;
-
 public class ApplicationRunner {
 
-    public static List<HouseHoldIncome> incomeList;
+    public static void main(String[] args) {
+        try {
+            List<HouseHoldIncome> incomeList = loadHouseHoldIncomeData();
 
-    public static void main(String[] args) throws IOException {
-// Puedes reemplazar estos valores con los datos adecuados
-        double averageSalary = 50.0; // Por ejemplo
-        double averageMembers = 30.0; // Por ejemplo
-        double averageBedrooms = 2.5; // Por ejemplo
-        double averageMeals = 2.0; // Por ejemplo
+            ChartGenerator chartGenerator = new ChartGenerator();
+            generateCharts(chartGenerator);
 
-        ChartGenerator chartGenerator = new ChartGenerator();
+            printStatistics(incomeList);
+            exportStatisticsToPDF(incomeList);
 
-        chartGenerator.generatePieChart("Salary Chart", chartGenerator.createPieDataset(averageSalary, 100 - averageSalary, 0), "salary_chart.png");
-        chartGenerator.generatePieChart("Members Chart", chartGenerator.createPieDataset(averageMembers, 100 - averageMembers, 0), "members_chart.png");
-        chartGenerator.generatePieChart("Bedrooms Chart", chartGenerator.createPieDataset(averageBedrooms, 100 - averageBedrooms, 0), "bedrooms_chart.png");
-        chartGenerator.generatePieChart("Meals Chart", chartGenerator.createPieDataset(averageMeals, 100 - averageMeals, 0), "meals_chart.png");
+        } catch (IOException e) {
+            handleIOException(e);
+        }
+    }
 
+    private static List<HouseHoldIncome> loadHouseHoldIncomeData() throws IOException {
+        HouseHoldIncomeRepository incomeRepository = new HouseHoldIncomeFileRepositoryImpl();
+        return incomeRepository.findAllHouseHoldIncome();
+    }
 
-        HouseHoldIncomeRepository incomeRepository = new HouseHoldIncomeFileRepositoryImpl ();
-        List<HouseHoldIncome> incomeList = incomeRepository.findAllHouseHoldIncome();
-        new ReportSaver (incomeList);
-        //centralTendencyMeasures ();
-        //generatePDFReportStatistic(incomeList);
-        //statistics(incomeList);
-        //generateReportPDF (incomeList);
-        //HouseHoldIncomeStatistics.generatePDFReportStatistic (incomeList);
-         // HouseHoldIncomeStatistics.generateReportPDF (incomeList);
-        //HouseHoldIncomeStatistics.statistics (incomeList);
-        printStatistics (incomeList);
-        exportStatisticsToPDF (incomeList);
-        PDFReportGenerator.generatePDFReport (incomeList);
+    private static void generateCharts(ChartGenerator chartGenerator) {
+        double averageSalary = 50.0;
+        double averageMembers = 30.0;
+        double averageBedrooms = 2.5;
+        double averageMeals = 2.0;
 
+        generatePieChart(chartGenerator, "Salary Chart", averageSalary, "salary_chart.png");
+        generatePieChart(chartGenerator, "Members Chart", averageMembers, "members_chart.png");
+        generatePieChart(chartGenerator, "Bedrooms Chart", averageBedrooms, "bedrooms_chart.png");
+        generatePieChart(chartGenerator, "Meals Chart", averageMeals, "meals_chart.png");
+    }
+
+    private static void generatePieChart(ChartGenerator chartGenerator, String chartTitle, double value, String filename) {
+        chartGenerator.generatePieChart(chartTitle, chartGenerator.createPieDataset(value, 100 - value, 0), filename);
+    }
+
+    private static void printStatistics(List<HouseHoldIncome> incomeList) {
+        // Implement your statistical printing logic here
+    }
+
+    private static void exportStatisticsToPDF(List<HouseHoldIncome> incomeList) {
+        PDFReportGenerator.generatePDFReport(incomeList);
+    }
+
+    private static void handleIOException(IOException e) {
+        // Handle the IOException, e.g., log it or display an error message
+        e.printStackTrace();
     }
 }
-
-
